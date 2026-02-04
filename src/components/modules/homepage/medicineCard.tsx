@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import {  Eye, MessageCircle } from "lucide-react";
+import { Eye } from "lucide-react";
 
 import {
   Card,
@@ -12,7 +12,7 @@ import {
 
 import { Product } from "@/types";
 import { Badge } from "@/components/ui/badge";
-
+import { Button } from "@/components/ui/button";
 
 type MedicineCardProps = {
   product: Product;
@@ -21,9 +21,18 @@ type MedicineCardProps = {
 export default function MedicineCard({ product }: MedicineCardProps) {
   return (
     <Card className="h-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-105">
-      {/* Thumbnail placeholder */}
-      <div className="relative h-56 w-full overflow-hidden bg-muted text-muted-foreground flex items-center justify-center">
-        <span>No Image</span>
+      {/* Thumbnail */}
+      <div className="relative h-56 w-full overflow-hidden bg-muted text-muted-foreground flex items-center justify-center"  suppressHydrationWarning={true}>
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <span>No Image</span>
+        )}
       </div>
 
       <CardHeader>
@@ -37,16 +46,24 @@ export default function MedicineCard({ product }: MedicineCardProps) {
           {product.description}
         </p>
 
-        <p className="mt-2 font-semibold text-primary">${product.price}</p>
+        <p className="mt-2 font-semibold text-primary">
+          ${product.price}
+        </p>
 
         <Badge variant="secondary" className="mt-2 text-xs">
           {product.category.name}
         </Badge>
       </CardContent>
 
-      <CardFooter className="flex justify-between text-sm text-muted-foreground">
+      <CardFooter className="flex justify-between items-center text-sm text-muted-foreground">
         <span>Stock: {product.stock}</span>
-        <span>Seller: {product.seller.name}</span>
+
+        <Link href={`/shop/${product.id}`}>
+          <Button size="sm" variant="outline" className="gap-1">
+            <Eye size={16} />
+            View
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

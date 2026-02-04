@@ -1,12 +1,21 @@
-import { Hero47 } from "@/components/layout/hero47";
+import { Footer2 } from "@/components/layout/footer2";
+
 import { Navbar1 } from "@/components/layout/Navbar";
 
-export default function Commonlayout({children}:{children:React.ReactNode}) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-         <Navbar1 />
-         <Hero47/>
-      {children}
-    </div>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <Navbar1 />
+        
+        {children}
+        <Footer2 />
+      </body>
+    </html>
   );
 }
+

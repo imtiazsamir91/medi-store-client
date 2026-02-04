@@ -1,3 +1,4 @@
+import { Hero47 } from "@/components/layout/hero47";
 import MedicineCard from "@/components/modules/homepage/medicineCard";
 import { medicineService } from "@/services/medicine.service";
 import { Product } from "@/types";
@@ -17,6 +18,7 @@ export default async function Home() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-8">
+      <div><Hero47 /></div>
       <h1 className="text-2xl font-bold mb-6">Medicines</h1>
 
       {products.length === 0 ? (
