@@ -1,14 +1,25 @@
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string;
+  user: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+};
+
 export type Product = {
   id: string;
   name: string;
   description: string;
   price: number;
   stock: number;
-   image?: string;
+  image?: string;
   categoryId: string;
   sellerId: string;
-  createdAt: string; 
-  updatedAt: string; 
+  createdAt: string;
+  updatedAt: string;
   category: {
     id: string;
     name: string;
@@ -18,4 +29,10 @@ export type Product = {
     name: string;
     email: string;
   };
+  reviews?: Review[];
+};
+
+export type ApiResponse<T> = {
+  data: T | null;
+  error: { message: string } | null;
 };

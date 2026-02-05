@@ -1,24 +1,99 @@
-import { Button } from "@/components/ui/button"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   Field,
-  FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+const formSchema = z.object({
+  name: z.string().min(1, "This field is required"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(8, "Minimum length is 8"),
+  role: z.enum(["CUSTOMER", "SELLER"]),
+});
 
+export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const router = useRouter();
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const handleGoogleLogin = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "http://localhost:3001",
+    });
+    console.log(data);
+  };
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      role: "CUSTOMER",
+    },
+    validators: { onSubmit: formSchema },
+    onSubmit: async ({ value }) => {
+      const toastId = toast.loading("Creating user");
+
+      try {
+        // 🔑 Only send fields backend expects for now
+        const payload = {
+          name: value.name,
+          email: value.email,
+          password: value.password,
+          role: value.role, // Include role if backend supports it
+        };
+
+        const { error } = await authClient.signUp.email(payload);
+
+        if (error) {
+          toast.error(error.message, { id: toastId });
+          return;
+        }
+
+        toast.success("User Created Successfully", { id: toastId });
+
+        // 🔑 Auto-login
+        const { error: loginError } = await authClient.signIn.email({
+          email: value.email,
+          password: value.password,
+        });
+
+        if (loginError) {
+          toast.error("Signup successful, but login failed", { id: toastId });
+          return;
+        }
+
+        // 🔑 Redirect based on role
+        if (value.role === "SELLER") {
+          router.push("/seller");
+        } else {
+          router.push("/dashboard");
+        }
+      } catch (err) {
+        toast.error("Something went wrong, please try again.", { id: toastId });
+      }
+    },
+  });
+
+  const { Field: FormField } = form;
+
   return (
     <Card {...props}>
       <CardHeader>
@@ -29,87 +104,115 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       </CardHeader>
 
       <CardContent>
-        <form>
+        <form
+          id="signup-form"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await form.handleSubmit();
+          }}
+        >
           <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
-            </Field>
+            {/* Name */}
+            <FormField name="name">
+              {(field) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            </FormField>
 
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
-            </Field>
+            {/* Email */}
+            <FormField name="email">
+              {(field) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                    <Input
+                      type="email"
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            </FormField>
 
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" required />
-              <FieldDescription>
-                Must be at least 8 characters long.
-              </FieldDescription>
-            </Field>
+            {/* Password */}
+            <FormField name="password">
+              {(field) => {
+                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                    <Input
+                      type="password"
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                  </Field>
+                );
+              }}
+            </FormField>
 
-            {/* <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" required />
-              <FieldDescription>Please confirm your password.</FieldDescription>
-            </Field> */}
-
-            {/* 🔥 ROLE SELECTION */}
-            <Field>
-              <FieldLabel>Select Role</FieldLabel>
-
-              <RadioGroup
-                name="role"
-                defaultValue="CUSTOMER"
-                className="grid gap-3 pt-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="CUSTOMER" id="customer" />
-                  <Label htmlFor="customer">Customer</Label>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="SELLER" id="seller" />
-                  <Label htmlFor="seller">Seller</Label>
-                </div>
-              </RadioGroup>
-
-              <FieldDescription>
-                Choose how you want to use the platform.
-              </FieldDescription>
-            </Field>
-
-            <FieldGroup>
-              <Field>
-                <Button type="submit">Create Account</Button>
-
-                <Button variant="outline" type="button">
-                  Sign up with Google
-                </Button>
-
-                <FieldDescription className="px-6 text-center">
-                  Already have an account?{" "}
-                  <a href="/login" className="underline">
-                    Sign in
-                  </a>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
+            {/* Role */}
+            <FormField name="role">
+              {(field) => (
+                <Field>
+                  <FieldLabel>Register as</FieldLabel>
+                  <div className="flex gap-6 mt-2">
+                    {["CUSTOMER", "SELLER"].map((role) => (
+                      <label key={role} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name={field.name}
+                          value={role}
+                          checked={field.state.value === role}
+                          onChange={() => field.handleChange(role)}
+                        />
+                        <span>{role.charAt(0) + role.slice(1).toLowerCase()}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {field.state.meta.isTouched && !field.state.meta.isValid && (
+                    <FieldError errors={field.state.meta.errors} />
+                  )}
+                </Field>
+              )}
+            </FormField>
           </FieldGroup>
         </form>
       </CardContent>
+
+      <CardFooter className="flex flex-col gap-5">
+        <Button form="signup-form" type="submit" className="w-full">
+          Register
+        </Button>
+        <Button
+          onClick={handleGoogleLogin}
+          variant="outline"
+          type="button"
+          className="w-full"
+        >
+          Continue with Google
+        </Button>
+      </CardFooter>
     </Card>
-  )
+  );
 }
