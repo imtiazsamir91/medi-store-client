@@ -76,7 +76,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
         });
 
         if (loginError) {
-          toast.error("Signup successful, but login failed", { id: toastId });
+          toast.error("Signup successful, check your mail and verify", { id: toastId });
           return;
         }
 

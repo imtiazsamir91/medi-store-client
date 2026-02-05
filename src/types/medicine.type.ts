@@ -36,3 +36,14 @@ export type ApiResponse<T> = {
   data: T | null;
   error: { message: string } | null;
 };
+// /types/session.ts
+import { Roles } from "@/constant/roles";
+
+export interface SessionUser {
+  id: string;
+  name: string;
+  email: string;
+  role?: Roles; 
+  emailVerified: boolean;
+  image?: string | null;
+}

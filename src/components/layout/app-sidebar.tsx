@@ -18,6 +18,7 @@ import { SearchForm } from "./search-form"
 import Link from "next/link"
 import { adminRoutes } from "@/routes/adminRoutes"
 import { sellerRoutes } from "@/routes/sellerRoutes"
+import { Roles } from "@/constant/roles"
 
 // This is sample data.
 
@@ -29,10 +30,10 @@ export function AppSidebar({
 
 let routes: typeof adminRoutes = []
   switch(user.role){
-    case"admin":
+    case Roles.admin:
     routes=adminRoutes;
     break;
-    case"seller":
+    case Roles.seller:
     routes=sellerRoutes;
     break;
 
