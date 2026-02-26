@@ -14,6 +14,21 @@ import {
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
+  const [mounted, setMounted] = React.useState(false)
+
+  // এটি নিশ্চিত করবে যে কম্পোনেন্টটি ক্লায়েন্টে মাউন্ট হওয়ার পর রেন্ডার হবে
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    // মাউন্ট হওয়ার আগে একটি খালি বাটন দেখাবে যাতে লেআউট শিফট না হয়
+    return (
+      <Button variant="outline" size="icon" disabled>
+        <Sun className="h-[1.2rem] w-[1.2rem] opacity-0" />
+      </Button>
+    )
+  }
 
   return (
     <DropdownMenu>

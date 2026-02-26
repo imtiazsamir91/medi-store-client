@@ -15,6 +15,10 @@ export const sellerRoutes= [
           title: "Add Medicine",
           url: "/addMedicine",
         },
+        {
+          title: "Inventory",
+          url: "/inventory",
+        },
       
       ],
     },

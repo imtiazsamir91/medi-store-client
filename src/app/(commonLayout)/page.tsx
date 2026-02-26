@@ -1,6 +1,7 @@
 import { Hero47 } from "@/components/layout/hero47";
 import MedicineCard from "@/components/modules/homepage/medicineCard";
-import { medicineService } from "@/services/medicine.service";
+import { getMedicinePost } from "@/services/medicine.service";
+
 import { Product } from "@/types";
 
 type MedicineResponse = {
@@ -9,7 +10,7 @@ type MedicineResponse = {
 };
 
 export default async function Home() {
-  const res: MedicineResponse = await medicineService.getMedicinePost();
+  const res: MedicineResponse = await getMedicinePost();
   const products: Product[] = res.data || [];
 
   if (res.error) {
