@@ -1,187 +1,172 @@
 "use client";
 
-import { Menu } from "lucide-react";
+import { ShoppingCart, Sparkles, User, LogOut, Settings, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
 import { authClient } from "@/lib/auth-client";
-import { Roles } from "@/constant/roles";
 import { useEffect, useState } from "react";
+import { useCart } from "@/providers/CartProvider";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface MenuItem {
-  title: string;
-  url: string;
-}
+export const Navbar1 = () => {
+  const [session, setSession] = useState<any>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false); // ড্রপডাউন স্টেট
+  const { cart } = useCart();
+  const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-interface NavbarProps {
-  className?: string;
-  logo?: {
-    url: string;
-    src: string;
-    alt: string;
-    title: string;
-  };
-  menu?: MenuItem[];
-  auth?: {
-    login: { title: string; url: string };
-    signup: { title: string; url: string };
-  };
-}
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-// ✅ Define a type for session user including optional role
-interface SessionUser {
-  id: string;
-  name: string;
-  email: string;
-  role?: Roles;
-  emailVerified: boolean;
-  image?: string | null;
-}
-
-const Navbar1 = ({
-  logo = {
-    url: "/",
-    src: "https://as1.ftcdn.net/v2/jpg/16/99/49/30/1000_F_1699493010_XEWc9xIeWbtmIrNK4UIHBr10fvcuFuNT.jpg",
-    alt: "logo",
-    title: "MediStore",
-  },
-  menu = [
-    { title: "Home", url: "/" },
-    { title: "Shop", url: "/shop" },
-    { title: "About", url: "/about" },
-  ],
-  auth = {
-    login: { title: "Login", url: "/login" },
-    signup: { title: "Sign up", url: "/register" },
-  },
-  className,
-}: NavbarProps) => {
-  const [userRole, setUserRole] = useState<Roles | null>(null);
-
-  // ✅ Fetch session and get role
   useEffect(() => {
     const fetchSession = async () => {
       try {
         const { data } = await authClient.getSession();
-        if (data?.user) {
-          const user = data.user as SessionUser;
-          setUserRole(user.role ?? null); // undefined -> null
-        }
+        setSession(data);
       } catch (err) {
-        console.error("Failed to fetch session:", err);
-        setUserRole(null);
+        setSession(null);
       }
     };
     fetchSession();
   }, []);
 
-  // ✅ Add Dashboard link only for admin or seller
-  const menuWithDashboard = [...menu];
-  if (userRole === Roles.admin) {
-    menuWithDashboard.push({ title: "Dashboard", url: "/admin" });
-  } else if (userRole === Roles.seller) {
-    menuWithDashboard.push({ title: "Dashboard", url: "/seller" });
-  }
+  const handleLogout = async () => {
+    await authClient.signOut();
+    window.location.reload();
+  };
+
+  const menu = [
+    { title: "Home", url: "/" },
+    { title: "Shop", url: "/shop" },
+    { title: "About", url: "/about" },
+  ];
+
+  const userRole = session?.user?.role?.toUpperCase();
+  if (userRole === "ADMIN") menu.push({ title: "Admin", url: "/admin" });
+  if (userRole === "SELLER") menu.push({ title: "Seller", url: "/seller" });
 
   return (
-    <section className={cn("py-4", className)}>
-      <div className="container mx-auto px-4">
-        {/* Desktop */}
-        <nav className="hidden items-center justify-between lg:flex">
-          <Link href={logo.url} className="flex items-center gap-2">
-            <img src={logo.src} className="max-h-8 dark:invert" alt={logo.alt} />
-            <span className="text-lg font-semibold tracking-tighter">{logo.title}</span>
+    <div className="fixed top-0 left-0 right-0 z-[100] flex justify-center p-4 md:p-6 pointer-events-none">
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={cn(
+          "pointer-events-auto flex items-center justify-between px-6 py-3 rounded-[24px] transition-all duration-500",
+          scrolled 
+            ? "w-full max-w-[1000px] bg-white/80 dark:bg-[#0F0E47]/80 backdrop-blur-2xl border border-black/5 dark:border-white/10 shadow-2xl" 
+            : "w-full max-w-[1200px] bg-transparent border border-transparent"
+        )}
+      >
+     
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#272757] to-[#8686AC] flex items-center justify-center border border-white/20 shadow-lg">
+            <Sparkles className="size-5 text-white" />
+          </div>
+          <span className="text-xl font-black tracking-tighter text-[#0F0E47] dark:text-white">
+            Medi<span className="text-[#8686AC]">Store</span>
+          </span>
+        </Link>
+
+     
+        <div className="hidden md:flex items-center gap-2 bg-black/5 dark:bg-white/5 p-1 rounded-full border border-black/5 dark:border-white/5">
+          {menu.map((item) => (
+            <Link 
+              key={item.title} 
+              href={item.url} 
+              className="px-5 py-2 text-xs font-black uppercase tracking-widest text-gray-500 dark:text-white/60 hover:text-black dark:hover:text-white transition-all"
+            >
+              {item.title}
+            </Link>
+          ))}
+        </div>
+
+        
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="hidden sm:block">
+            <ModeToggle />
+          </div>
+
+          <Link href="/cart" className="relative p-2.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all border border-transparent hover:border-black/5 dark:hover:border-white/10">
+            <ShoppingCart className="size-5 text-[#0F0E47] dark:text-white" />
+            <AnimatePresence>
+              {cartItemCount > 0 && (
+                <motion.span 
+                  initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                  className="absolute -top-1 -right-1 bg-[#8686AC] text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-[#0F0E47]"
+                >
+                  {cartItemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
 
-          <NavigationMenu>
-            <NavigationMenuList>
-              {menuWithDashboard.map((item) => (
-                <NavigationMenuItem key={item.title}>
-                  <NavigationMenuLink
-                    asChild
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted hover:text-accent-foreground"
+         
+          {session?.user ? (
+            <div className="relative">
+              <button 
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="relative size-10 rounded-full overflow-hidden border-2 border-[#8686AC]/30 hover:border-[#8686AC] transition-all bg-[#272757] flex items-center justify-center shadow-lg"
+              >
+                {session.user.image ? (
+                  <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-bold text-sm uppercase">
+                    {session.user.name?.charAt(0)}
+                  </span>
+                )}
+              </button>
+
+             
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-4 w-56 bg-white dark:bg-[#0F0E47] border border-black/5 dark:border-white/10 rounded-[24px] shadow-2xl p-2 backdrop-blur-3xl overflow-hidden"
                   >
-                    <Link href={item.url}>{item.title}</Link>
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
+                    <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2">
+                      <p className="text-[10px] font-black text-[#8686AC] uppercase tracking-widest">Logged in as</p>
+                      <p className="text-sm font-bold truncate dark:text-white">{session.user.name}</p>
+                    </div>
 
-          <div className="flex gap-2">
-            <ModeToggle />
-            <Button asChild variant="outline" size="sm">
-              <Link href={auth.login.url}>{auth.login.title}</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href={auth.signup.url}>{auth.signup.title}</Link>
-            </Button>
-          </div>
-        </nav>
-
-        {/* Mobile */}
-        <div className="block lg:hidden">
-          <div className="flex items-center justify-between">
-            <Link href={logo.url} className="flex items-center gap-2">
-              <img src={logo.src} className="max-h-8 dark:invert" alt={logo.alt} />
-            </Link>
-
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>
-                    <Link href={logo.url} className="flex items-center gap-2">
-                      <img src={logo.src} className="max-h-8 dark:invert" alt={logo.alt} />
-                      <ModeToggle />
+                    <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all">
+                      <User className="size-4" /> Profile
                     </Link>
-                  </SheetTitle>
-                </SheetHeader>
-
-                <div className="flex flex-col gap-6 p-4">
-                  <Accordion type="single" collapsible className="flex w-full flex-col gap-4">
-                    {menuWithDashboard.map((item) => (
-                      <Link key={item.title} href={item.url} className="text-md font-semibold">
-                        {item.title}
+                    
+                    {userRole && (
+                      <Link href={`/${userRole.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all">
+                        <LayoutDashboard className="size-4" /> Dashboard
                       </Link>
-                    ))}
-                  </Accordion>
+                    )}
 
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <Link href={auth.login.url}>{auth.login.title}</Link>
-                    </Button>
-                    <Button asChild>
-                      <Link href={auth.signup.url}>{auth.signup.title}</Link>
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                    >
+                      <LogOut className="size-4" /> Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" className="hidden lg:flex rounded-full px-5 font-black text-[10px] uppercase tracking-widest text-gray-500 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/5">
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button asChild className="rounded-full px-6 py-5 font-black text-[10px] uppercase tracking-[0.2em] bg-[#272757] dark:bg-white text-white dark:text-[#0F0E47] hover:bg-[#8686AC] dark:hover:bg-[#8686AC] shadow-xl transition-all border-none">
+                <Link href="/register">Join Now</Link>
+              </Button>
+            </div>
+          )}
         </div>
-      </div>
-    </section>
+      </motion.nav>
+    </div>
   );
 };
-
-export { Navbar1 };

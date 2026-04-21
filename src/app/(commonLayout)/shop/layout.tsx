@@ -1,6 +1,14 @@
 import React from "react";
 
-export default function Shoplayout({children}:{children:React.ReactNode}){ return( <div>
-     <h1>This is shop layout</h1>
-    {children}
-   </div> ) }
+export default function ShopLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="shop-layout-wrapper">
+   
+      {children}
+    </section>
+  );
+}

@@ -1,5 +1,6 @@
-import { Footer2 } from "@/components/layout/footer2";
+// src/app/(commonLayout)/layout.tsx
 
+import { Footer2 } from "@/components/layout/footer2";
 import { Navbar1 } from "@/components/layout/Navbar";
 
 export default function RootLayout({
@@ -8,14 +9,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
+   
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body 
+       
+        suppressHydrationWarning={true} 
+       
+        className="antialiased" 
+      >
         <Navbar1 />
         
-        {children}
+        <main>
+          {children}
+        </main>
+
         <Footer2 />
       </body>
     </html>
   );
 }
-

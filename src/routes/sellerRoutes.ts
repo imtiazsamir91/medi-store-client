@@ -4,6 +4,10 @@ export const sellerRoutes= [
     
       items: [
         {
+          title: "Home",
+          url: "/",
+        },
+        {
           title: "Order",
           url: "/order",
         },

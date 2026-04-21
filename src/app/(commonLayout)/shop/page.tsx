@@ -1,10 +1,17 @@
-export default function ShopPage(){ 
-    return( 
+import ShopPageContent from "@/components/layout/ShopPageContent";
+import { getAllCategories, getMedicinePost } from "@/services/medicine.service";
 
 
-        
-            <div><h1> This is shop page</h1></div> 
+export default async function ShopPage() {
+ 
+  const categoriesResponse = await getAllCategories();
+  const medicinesResponse = await getMedicinePost();
 
-        
-        
-        )}
+ 
+  return (
+    <ShopPageContent 
+      categories={categoriesResponse?.data || []} 
+      allProducts={medicinesResponse?.data || []} 
+    />
+  );
+}

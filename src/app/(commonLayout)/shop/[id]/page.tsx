@@ -1,146 +1,143 @@
-import { medicineService } from "@/services/medicine.service";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getProductById } from "@/services/medicine.service";
 import { notFound } from "next/navigation";
 import { 
-  BadgeCheck, Package, Store, Mail, Tag, ShoppingCart, Clock, ArrowLeft, Star 
+  Package, Store, ArrowLeft, Star, Users, Zap 
 } from "lucide-react";
 import Link from "next/link";
+import AddToCartButton from "@/components/layout/AddToCartButton";
+import ReviewForm from "@/components/layout/ReviewForm";
+import { motion } from "framer-motion";
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
+export default function ShopById({ params }: { params: any }) {
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-export default async function ShopById({ params }: Props) {
-  const { id } = await params;
-  const res = await medicineService.getProductById(id);
+  useEffect(() => {
+    async function fetchData() {
+      const { id } = await params;
+      const res = await getProductById(id);
+      if (res.data) setProduct(res.data);
+      setLoading(false);
+    }
+    fetchData();
+  }, [params]);
 
-  if (!res.data) return notFound();
-
-  const product = res.data;
+  if (loading) return <div className="min-h-screen flex items-center justify-center dark:bg-[#0F0E47] bg-gray-50 text-[#8686AC] animate-pulse uppercase tracking-widest text-xs">Initializing Sync...</div>;
+  if (!product) return notFound();
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-10 min-h-screen bg-gray-50/50 dark:bg-zinc-950 transition-colors duration-300">
+   
+    <main className="relative min-h-screen transition-colors duration-500 bg-white dark:bg-[#0F0E47] text-gray-600 dark:text-[#8686AC] overflow-x-hidden p-4 md:p-10">
       
-      {/* Back Button */}
-      <Link href="/shop" className="flex items-center text-sm text-gray-500 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4 mr-2" /> Back to Shop
-      </Link>
+     
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div 
+          className="absolute inset-0 opacity-10 dark:opacity-20 mix-blend-multiply dark:mix-blend-lighten transition-all duration-700"
+          style={{ 
+            backgroundImage: `url('https://www.transparenttextures.com/patterns/carbon-fibre.png'), url('https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=2000')`, 
+            backgroundSize: 'auto, cover',
+            backgroundPosition: 'center',
+          }}
+        />
+      
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-transparent to-white/90 dark:from-[#0F0E47]/90 dark:via-transparent dark:to-[#0F0E47]" />
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         
-        {/* Left Side: Product Image/Visual */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-24 bg-white dark:bg-zinc-900 rounded-3xl p-12 border border-gray-100 dark:border-zinc-800 shadow-sm flex items-center justify-center aspect-square transition-all">
-             <div className="text-center">
-                <div className="w-32 h-32 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                   <Package size={64} />
+       
+        <Link href="/shop" className="group inline-flex items-center gap-2 mb-8 text-[10px] font-bold uppercase tracking-widest hover:text-blue-600 dark:hover:text-white transition-all">
+          <ArrowLeft className="size-3 group-hover:-translate-x-1 transition-transform" /> Back to Collection
+        </Link>
+
+       
+        <div className="bg-gray-50/50 dark:bg-[#161555]/60 backdrop-blur-3xl border border-gray-200 dark:border-white/10 rounded-[40px] overflow-hidden shadow-2xl mb-10 transition-all">
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            
+            
+            <div className="p-8 md:p-12 flex flex-col justify-center items-center bg-gray-100/30 dark:bg-white/[0.02] border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-white/5">
+              <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="relative">
+                <div className="absolute inset-0 bg-blue-400/10 dark:bg-[#8686AC]/20 blur-[80px]" />
+                <div className="relative size-64 md:size-80 bg-white dark:bg-[#0F0E47] rounded-full border border-gray-200 dark:border-white/10 flex items-center justify-center shadow-inner">
+                  <Package size={100} strokeWidth={0.5} className="text-gray-300 dark:text-white/10" />
                 </div>
-                <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  {product.category?.name || "Medicine"}
-                </span>
-             </div>
+              </motion.div>
+            </div>
+
+            
+            <div className="p-8 md:p-12 space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-blue-600 dark:text-[#505081] font-black text-[9px] tracking-[0.4em] uppercase">
+                  <Zap size={12} fill="currentColor" /> Verified Asset
+                </div>
+                <h1 className="text-5xl font-light text-gray-900 dark:text-white tracking-tighter capitalize">{product.name}</h1>
+              </div>
+
+              <div className="flex items-baseline gap-3">
+                <span className="text-4xl font-bold text-gray-900 dark:text-white">${product.price}</span>
+                <span className="text-[10px] font-bold opacity-40 uppercase tracking-widest">USD</span>
+              </div>
+
+              <p className="text-xs leading-relaxed opacity-70 italic dark:opacity-60">{product.description || "Medical grade equipment for specialized use cases."}</p>
+
+              <div className="pt-6">
+                <AddToCartButton product={product} />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Side: Information */}
-        <div className="lg:col-span-7 space-y-8">
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          <section>
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-zinc-100 mb-2 capitalize leading-tight">
-              {product.name}
-            </h1>
-            <div className="flex items-center gap-4 text-gray-500 dark:text-zinc-500 text-sm">
-               <span className="flex items-center gap-1">
-                 <Tag className="w-4 h-4" /> ID: {product.id.slice(0, 8)}...
-               </span>
-               <span className="flex items-center gap-1">
-                 <Clock className="w-4 h-4" /> Updated: {new Date(product.updatedAt).toLocaleDateString()}
-               </span>
-            </div>
-          </section>
-
-          {/* Pricing & Stock Card */}
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-sm flex items-center justify-between transition-all">
-            <div>
-              <p className="text-gray-400 dark:text-zinc-500 text-sm">Price</p>
-              <h2 className="text-4xl font-bold text-blue-600 dark:text-blue-400">${product.price}</h2>
-            </div>
-            <div className="text-right">
-              <p className="text-gray-400 dark:text-zinc-500 text-sm mb-1">Stock Status</p>
-              <span className={`px-4 py-1.5 rounded-lg font-semibold text-sm flex items-center gap-2 ${product.stock > 0 ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'}`}>
-                <BadgeCheck className="w-4 h-4" /> {product.stock} Units
-              </span>
-            </div>
+          <div className="md:col-span-1 bg-gray-50/50 dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-[30px] p-6 h-fit">
+            <Store className="mb-4 text-blue-600 dark:text-[#505081]" size={24} />
+            <h4 className="text-gray-900 dark:text-white font-bold text-sm uppercase italic">{product.seller?.name}</h4>
+            <p className="text-[10px] opacity-50 mb-6">{product.seller?.email}</p>
+            <Link href={`mailto:${product.seller?.email}`} className="text-[9px] font-black uppercase tracking-widest text-blue-600 dark:text-[#8686AC] hover:underline flex items-center gap-2">
+              Contact Dealer <ArrowLeft className="size-3 rotate-180" />
+            </Link>
           </div>
 
-          {/* Description */}
-          <section className="space-y-3">
-            <h3 className="text-lg font-bold text-gray-800 dark:text-zinc-200">Product Description</h3>
-            <p className="text-gray-600 dark:text-zinc-400 leading-relaxed bg-white dark:bg-zinc-900/50 p-5 rounded-2xl border border-gray-50 dark:border-zinc-800">
-              {product.description || "No detailed description available for this medicine."}
-            </p>
-          </section>
+          <div className="md:col-span-2 space-y-6">
+            <div className="bg-gray-50/50 dark:bg-white/[0.03] backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-[30px] p-8">
+              <div className="flex items-center justify-between mb-8 border-b border-gray-200 dark:border-white/5 pb-4">
+                <h3 className="text-gray-900 dark:text-white font-bold text-lg uppercase italic flex items-center gap-2">
+                   <Users size={18} /> Feedback Log
+                </h3>
+                <span className="text-[10px] font-bold bg-gray-200 dark:bg-[#505081]/30 text-gray-600 dark:text-white px-3 py-1 rounded-full">
+                  {product.reviews?.length || 0} Entries
+                </span>
+              </div>
 
-          {/* Seller Information Card */}
-          <section className="bg-zinc-900 dark:bg-blue-600 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden transition-all">
-             <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4 text-blue-400 dark:text-blue-100">
-                   <Store className="w-5 h-5" />
-                   <span className="text-xs font-bold uppercase tracking-widest">Authorized Seller</span>
-                </div>
-                <h4 className="text-xl font-bold mb-1">{product.seller?.name}</h4>
-                <p className="flex items-center gap-2 text-zinc-400 dark:text-blue-50 text-sm">
-                   <Mail className="w-4 h-4" /> {product.seller?.email}
-                </p>
-             </div>
-             <Store className="absolute -right-4 -bottom-4 w-32 h-32 text-white/5" />
-          </section>
-
-          {/* Buy Button */}
-          <button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-blue-200 dark:shadow-none transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
-            <ShoppingCart className="w-6 h-6" /> Add to Prescription Cart
-          </button>
-
-          {/* Reviews Section */}
-          <section className="pt-10 border-t border-gray-200 dark:border-zinc-800">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-zinc-100">Customer Reviews</h3>
-              <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold">
-                {product.reviews?.length || 0} Reviews
-              </span>
-            </div>
-
-            {product.reviews && product.reviews.length > 0 ? (
-              <div className="grid gap-4">
-                {product.reviews.map((rev: any, index: number) => (
-                  <div key={index} className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-800 shadow-sm">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 bg-gray-100 dark:bg-zinc-800 rounded-full flex items-center justify-center text-gray-500 font-bold uppercase">
-                        {rev.userName?.charAt(0) || "U"}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-800 dark:text-zinc-200 text-sm">{rev.userName || "Verified User"}</h4>
-                        <div className="flex text-yellow-500">
-                           {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
-                        </div>
+              
+              <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                {product.reviews?.map((rev: any, i: number) => (
+                  <div key={i} className="border-b border-gray-100 dark:border-white/5 last:border-0 pb-6">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-bold text-gray-800 dark:text-white/80 uppercase">{rev.user?.name || "Client_ID"}</span>
+                      <div className="flex gap-0.5 text-yellow-500 dark:text-[#8686AC]">
+                        {[...Array(5)].map((_, idx) => (
+                          <Star key={idx} size={8} fill={idx < (rev.rating || 5) ? "currentColor" : "none"} />
+                        ))}
                       </div>
                     </div>
-                    <p className="text-gray-600 dark:text-zinc-400 text-sm leading-relaxed">{rev.comment}</p>
+                    <p className="text-xs italic text-gray-600 dark:text-white/60">"{rev.comment}"</p>
                   </div>
                 ))}
+                {(!product.reviews || product.reviews.length === 0) && (
+                   <p className="text-center text-xs opacity-40 py-10">No public records found.</p>
+                )}
               </div>
-            ) : (
-              <div className="text-center py-16 bg-white dark:bg-zinc-900/40 rounded-3xl border border-dashed border-gray-200 dark:border-zinc-800">
-                <div className="w-16 h-16 bg-gray-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Package className="w-8 h-8 text-gray-300 dark:text-zinc-600" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-zinc-200">No reviews yet</h4>
-                <p className="text-gray-500 dark:text-zinc-500 text-sm max-w-xs mx-auto mt-1">
-                  Be the first one to share your experience with this medicine!
-                </p>
-              </div>
-            )}
-          </section>
+            </div>
 
+            <div className="bg-gray-50/50 dark:bg-[#0F0E47]/60 border border-gray-200 dark:border-white/10 rounded-[30px] p-8 shadow-inner">
+               <ReviewForm medicineId={product.id} userId={"VuvssZJgqbYTIjW3H3752jgoVpPRH4TW"} />
+            </div>
+          </div>
         </div>
       </div>
     </main>

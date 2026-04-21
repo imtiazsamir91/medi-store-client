@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
-  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -21,198 +20,133 @@ import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { motion } from "framer-motion";
 
 const formSchema = z.object({
-  name: z.string().min(1, "This field is required"),
+  name: z.string().min(1, "Required"),
   email: z.string().email("Invalid email"),
-  password: z.string().min(8, "Minimum length is 8"),
+  password: z.string().min(8, "Min 8 chars"),
   role: z.enum(["CUSTOMER", "SELLER"]),
 });
 
 export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
   const router = useRouter();
 
-  const handleGoogleLogin = async () => {
-    const data = await authClient.signIn.social({
-      provider: "google",
-      callbackURL: "http://localhost:3001",
-    });
-    console.log(data);
-  };
-
   const form = useForm({
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      role: "CUSTOMER",
-    },
+    defaultValues: { name: "", email: "", password: "", role: "CUSTOMER" },
     validators: { onSubmit: formSchema },
     onSubmit: async ({ value }) => {
-      const toastId = toast.loading("Creating user");
-
+      const toastId = toast.loading("Creating...");
       try {
-        // 🔑 Only send fields backend expects for now
-        const payload = {
-          name: value.name,
-          email: value.email,
-          password: value.password,
-          role: value.role, // Include role if backend supports it
-        };
-
-        const { error } = await authClient.signUp.email(payload);
-
-        if (error) {
-          toast.error(error.message, { id: toastId });
-          return;
-        }
-
-        toast.success("User Created Successfully", { id: toastId });
-
-        // 🔑 Auto-login
-        const { error: loginError } = await authClient.signIn.email({
-          email: value.email,
-          password: value.password,
-        });
-
-        if (loginError) {
-          toast.error("Signup successful, check your mail and verify", { id: toastId });
-          return;
-        }
-
-        // 🔑 Redirect based on role
-        if (value.role === "SELLER") {
-          router.push("/seller");
-        } else {
-          router.push("/dashboard");
-        }
-      } catch (err) {
-        toast.error("Something went wrong, please try again.", { id: toastId });
-      }
+        const { error } = await authClient.signUp.email(value);
+        if (error) { toast.error(error.message, { id: toastId }); return; }
+        toast.success("Account created!");
+        router.push(value.role === "SELLER" ? "/seller" : "/dashboard");
+      } catch (err) { toast.error("Error occurred"); }
     },
   });
 
-  const { Field: FormField } = form;
+
+  const inputClass = "h-10 bg-background/50 dark:bg-white/5 border-border rounded-xl focus:ring-1 focus:ring-primary text-sm text-foreground transition-all px-3";
+  const labelClass = "text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1";
 
   return (
-    <Card {...props}>
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Enter your information below to create your account
-        </CardDescription>
-      </CardHeader>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+     
+      className="relative w-full max-w-[420px] mx-auto p-[1.5px] rounded-[32px] overflow-hidden group shadow-2xl"
+    >
+     
+      <div className="absolute inset-0 bg-gradient-to-b from-indigo-100 via-white to-white dark:from-[#2d215a] dark:via-[#0f0a1e] dark:to-[#0f0a1e]" />
+      
+      
+      <div className="absolute inset-0 bg-white/40 dark:bg-black/10 backdrop-blur-3xl" />
 
-      <CardContent>
-        <form
-          id="signup-form"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await form.handleSubmit();
-          }}
-        >
-          <FieldGroup>
-            {/* Name */}
-            <FormField name="name">
-              {(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                    <Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                  </Field>
-                );
-              }}
-            </FormField>
+      <Card {...props} className="relative border-none bg-transparent rounded-[31px] overflow-hidden">
+        <CardHeader className="space-y-1 pt-8 pb-5 text-center">
+          <CardTitle className="text-3xl font-black tracking-tighter text-foreground dark:text-white">
+            Sign Up
+          </CardTitle>
+          <CardDescription className="text-muted-foreground dark:text-zinc-400 text-[11px] font-medium uppercase tracking-widest">
+            Join MediStore healthcare network
+          </CardDescription>
+        </CardHeader>
 
-            {/* Email */}
-            <FormField name="email">
-              {(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                    <Input
-                      type="email"
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                  </Field>
-                );
-              }}
-            </FormField>
-
-            {/* Password */}
-            <FormField name="password">
-              {(field) => {
-                const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                return (
-                  <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                    <Input
-                      type="password"
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                  </Field>
-                );
-              }}
-            </FormField>
-
-            {/* Role */}
-            <FormField name="role">
-              {(field) => (
-                <Field>
-                  <FieldLabel>Register as</FieldLabel>
-                  <div className="flex gap-6 mt-2">
-                    {["CUSTOMER", "SELLER"].map((role) => (
-                      <label key={role} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name={field.name}
-                          value={role}
-                          checked={field.state.value === role}
-                          onChange={() => field.handleChange(role)}
-                        />
-                        <span>{role.charAt(0) + role.slice(1).toLowerCase()}</span>
-                      </label>
-                    ))}
+        <CardContent className="px-8">
+          <form id="signup-form" className="space-y-4" onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
+            <FieldGroup className="space-y-3.5">
+              <form.Field name="name">
+                {(field) => (
+                  <div className="space-y-1">
+                    <FieldLabel className={labelClass}>Name</FieldLabel>
+                    <Input className={inputClass} placeholder="Imtiaz Rahman" value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
                   </div>
-                  {field.state.meta.isTouched && !field.state.meta.isValid && (
-                    <FieldError errors={field.state.meta.errors} />
-                  )}
-                </Field>
-              )}
-            </FormField>
-          </FieldGroup>
-        </form>
-      </CardContent>
+                )}
+              </form.Field>
 
-      <CardFooter className="flex flex-col gap-5">
-        <Button form="signup-form" type="submit" className="w-full">
-          Register
-        </Button>
-        <Button
-          onClick={handleGoogleLogin}
-          variant="outline"
-          type="button"
-          className="w-full"
-        >
-          Continue with Google
-        </Button>
-      </CardFooter>
-    </Card>
+              <form.Field name="email">
+                {(field) => (
+                  <div className="space-y-1">
+                    <FieldLabel className={labelClass}>Email Address</FieldLabel>
+                    <Input type="email" className={inputClass} placeholder="name@example.com" value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+                  </div>
+                )}
+              </form.Field>
+
+              <form.Field name="password">
+                {(field) => (
+                  <div className="space-y-1">
+                    <FieldLabel className={labelClass}>Password</FieldLabel>
+                    <Input type="password" className={inputClass} placeholder="••••••••" value={field.state.value} onChange={(e) => field.handleChange(e.target.value)} />
+                  </div>
+                )}
+              </form.Field>
+
+              <form.Field name="role">
+                {(field) => (
+                  <div className="pt-1">
+                    <div className="grid grid-cols-2 gap-3">
+                      {["CUSTOMER", "SELLER"].map((role) => {
+                        const isSelected = field.state.value === role;
+                        return (
+                          <label key={role} className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${isSelected ? 'border-primary bg-primary/10 shadow-sm' : 'border-border bg-background/50 dark:border-white/5 dark:bg-white/5'}`}>
+                            <input type="radio" className="sr-only" checked={isSelected} onChange={() => field.handleChange(role as any)} />
+                            <div className={`w-2.5 h-2.5 rounded-full border ${isSelected ? 'bg-primary border-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'border-muted-foreground/30'}`} />
+                            <span className={`text-[11px] font-bold ${isSelected ? 'text-foreground dark:text-white' : 'text-muted-foreground'}`}>{role}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </form.Field>
+            </FieldGroup>
+          </form>
+        </CardContent>
+
+        <CardFooter className="flex flex-col gap-4 pt-6 pb-10 px-8">
+          <Button 
+            form="signup-form" 
+            type="submit" 
+            className="h-11 w-full bg-gradient-to-r from-blue-600 to-purple-600 dark:from-[#2563eb] dark:to-[#9333ea] hover:opacity-90 text-white font-bold rounded-full text-sm transition-all shadow-lg shadow-primary/20"
+          >
+            Create Account
+          </Button>
+          
+          <div className="relative w-full flex items-center py-1">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border dark:border-white/10"></span></div>
+            <span className="relative mx-auto bg-white dark:bg-[#0f0a1e] px-3 text-[9px] text-muted-foreground font-bold tracking-[0.3em]">OR</span>
+          </div>
+
+          <Button
+            variant="outline"
+            className="h-11 w-full border-border dark:border-white/10 bg-background/50 dark:bg-white/5 hover:bg-accent dark:hover:bg-white/10 text-foreground dark:text-white rounded-full text-[10px] font-bold tracking-wider"
+          >
+            CONTINUE WITH GOOGLE
+          </Button>
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }
