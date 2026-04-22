@@ -5,6 +5,7 @@ import { Product } from "@/types";
 import Link from "next/link"; // লিঙ্ক ইমপোর্ট করা হয়েছে
 import { ArrowRight } from "lucide-react"; // আইকন
 import AboutSection from "./about/page";
+import EmailNewsletter from "@/components/layout/emailCart";
 
 type MedicineResponse = {
   data: Product[] | null;
@@ -72,6 +73,7 @@ export default async function Home() {
       <div>
         <AboutSection/>
       </div>
+      <div><EmailNewsletter/></div>
     </main>
   );
 }

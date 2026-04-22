@@ -19,54 +19,96 @@ export default function CategoryList({ initialCategories }: { initialCategories:
 
   return (
     <div className="w-full">
-      <table className="w-full text-left border-separate border-spacing-y-2.5 px-2">
-        <thead>
-          <tr className="text-[#8686AC]/40 uppercase text-[9px] font-black tracking-[0.4em]">
-            <th className="px-6 py-2">Entity Name</th>
-            <th className="px-6 py-2 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {initialCategories.map((category, index) => (
-            <tr 
-              key={category.id} 
-              className="group transition-all duration-300 animate-in fade-in slide-in-from-right-4"
-              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
-            >
-              <td className="px-6 py-3 bg-white/[0.03] border-y border-l border-white/10 group-hover:border-[#8686AC]/30 rounded-l-2xl transition-all duration-300">
-                <div className="flex items-center gap-4">
-                  <div className="size-10 rounded-xl bg-[#272757]/40 border border-white/5 flex items-center justify-center group-hover:bg-[#505081]/30 transition-all duration-300">
-                    <Layers className="w-4 h-4 text-[#8686AC] group-hover:text-white" />
-                  </div>
-                  <div>
-                    <span className="text-base font-bold text-white group-hover:text-[#8686AC] transition-colors tracking-tight">
-                      {category.name}
-                    </span>
-                    <div className="flex items-center gap-1 text-[9px] font-bold text-[#8686AC]/40 uppercase tracking-tighter">
-                      <ChevronRight className="w-2.5 h-2.5" />
-                      ID: {category.id.slice(-6).toUpperCase()}
+      {/* ডেস্কটপ ভিউ */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="w-full text-left border-separate border-spacing-y-2.5 px-2">
+          <thead>
+            {/* লাইট থিমে হেডার টেক্সট আরও ডার্ক করা হয়েছে */}
+            <tr className="text-slate-900/60 dark:text-[#8686AC]/40 uppercase text-[9px] font-black tracking-[0.4em]">
+              <th className="px-6 py-2">Entity Name</th>
+              <th className="px-6 py-2 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {initialCategories.map((category, index) => (
+              <tr 
+                key={category.id} 
+                className="group transition-all duration-300 animate-in fade-in slide-in-from-right-4"
+                style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+              >
+                {/* লাইট থিমে ব্যাকগ্রাউন্ড এবং টেক্সট কালার ফিক্স করা হয়েছে */}
+                <td className="px-6 py-3 bg-slate-200/50 dark:bg-white/[0.03] border-y border-l border-slate-300 dark:border-white/10 group-hover:border-[#8686AC]/30 rounded-l-2xl transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="size-10 rounded-xl bg-slate-300 dark:bg-[#272757]/40 border border-slate-400 dark:border-white/5 flex items-center justify-center group-hover:bg-[#505081]/30 transition-all duration-300">
+                      <Layers className="w-4 h-4 text-slate-700 dark:text-[#8686AC] group-hover:text-black dark:group-hover:text-white" />
+                    </div>
+                    <div>
+                      {/* লাইট থিমে টেক্সট সলিড ব্ল্যাক (text-black) */}
+                      <span className="text-base font-bold text-black dark:text-white group-hover:text-blue-700 dark:group-hover:text-[#8686AC] transition-colors tracking-tight">
+                        {category.name}
+                      </span>
+                      <div className="flex items-center gap-1 text-[9px] font-black text-slate-600 dark:text-[#8686AC]/40 uppercase tracking-tighter">
+                        <ChevronRight className="w-2.5 h-2.5" />
+                        ID: {category.id.slice(-6).toUpperCase()}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </td>
+                </td>
 
-              <td className="px-6 py-3 bg-white/[0.03] border-y border-r border-white/10 group-hover:border-[#8686AC]/30 rounded-r-2xl text-right transition-all duration-300">
-                <div className="flex justify-end items-center gap-2">
-                
-                  <EditCategoryModal category={category} />
-                  
-                  <button 
-                    onClick={() => handleDelete(category.id)}
-                    className="p-2.5 rounded-lg bg-[#0F0E47] border border-white/5 hover:border-red-500/50 text-[#8686AC] hover:text-white hover:bg-red-500/20 transition-all duration-300 group/del active:scale-90"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                <td className="px-6 py-3 bg-slate-200/50 dark:bg-white/[0.03] border-y border-r border-slate-300 dark:border-white/10 group-hover:border-[#8686AC]/30 rounded-r-2xl text-right transition-all duration-300">
+                  <div className="flex justify-end items-center gap-2">
+                    <EditCategoryModal category={category} />
+                    <button 
+                      onClick={() => handleDelete(category.id)}
+                      className="p-2.5 rounded-lg bg-slate-300 dark:bg-[#0F0E47] border border-slate-400 dark:border-white/5 hover:border-red-500/50 text-slate-700 dark:text-[#8686AC] hover:text-red-600 dark:hover:text-white hover:bg-red-100 dark:hover:bg-red-500/20 transition-all duration-300 active:scale-90"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* মোবাইল ভিউ */}
+      <div className="md:hidden flex flex-col gap-4 px-2">
+        {initialCategories.map((category, index) => (
+          <div 
+            key={category.id}
+            className="p-4 bg-slate-100 dark:bg-white/[0.03] border border-slate-300 dark:border-white/10 rounded-2xl flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 shadow-sm dark:shadow-none"
+            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'forwards' }}
+          >
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-xl bg-slate-200 dark:bg-[#272757]/40 border border-slate-300 dark:border-white/5 flex items-center justify-center">
+                <Layers className="w-5 h-5 text-slate-700 dark:text-[#8686AC]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                {/* লাইট থিমে মোবাইল টেক্সটও এখন ব্ল্যাক */}
+                <p className="text-lg font-black text-black dark:text-white truncate">{category.name}</p>
+                <div className="flex items-center gap-1 text-[10px] font-black text-slate-600 dark:text-[#8686AC]/40 uppercase">
+                  <ChevronRight className="w-3 h-3" />
+                  ID: {category.id.slice(-6).toUpperCase()}
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-white/5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-[#8686AC]/30">Actions</span>
+              <div className="flex gap-3">
+                <EditCategoryModal category={category} />
+                <button 
+                  onClick={() => handleDelete(category.id)}
+                  className="p-3 rounded-xl bg-red-100 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-500 active:scale-95"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
