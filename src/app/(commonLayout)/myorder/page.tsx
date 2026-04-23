@@ -100,17 +100,17 @@ export default function OrdersPage() {
                 viewport={{ once: true, margin: "-100px" }}
                 className="group relative"
               >
-                {/* ID Tag Floating */}
+              
                 <div className="absolute -top-6 left-12 px-6 py-2 bg-slate-900 dark:bg-[#505081] text-white rounded-full text-[10px] font-black tracking-widest z-20 shadow-xl group-hover:bg-[#8686AC] transition-colors">
                   ORDER_HASH_{order.id.slice(-6).toUpperCase()}
                 </div>
 
-                {/* --- The Glass Card Body --- */}
+              
                 <div className="relative z-10 bg-white/80 dark:bg-[#272757]/30 backdrop-blur-3xl border border-white dark:border-white/10 rounded-[60px] p-10 md:p-16 transition-all duration-700 group-hover:border-[#8686AC]/40 group-hover:bg-white dark:group-hover:bg-[#272757]/50">
                   
                   <div className="flex flex-col xl:flex-row justify-between gap-16">
                     <div className="space-y-10 flex-1">
-                      {/* Order Info Grid */}
+                     
                       <div className="grid grid-cols-2 gap-8">
                         <div>
                           <p className="text-[10px] font-black uppercase tracking-widest dark:text-[#8686AC]/40 mb-3 flex items-center gap-2">
@@ -150,7 +150,6 @@ export default function OrdersPage() {
                       </div>
                     </div>
 
-                    {/* Costing Section */}
                     <div className="xl:text-right flex flex-col justify-between items-end">
                       <div className="space-y-2">
                         <p className="text-[11px] font-black uppercase tracking-[0.4em] dark:text-[#8686AC]/40">Aggregate_Total</p>
@@ -165,7 +164,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Card Bottom Decoration */}
+                 
                   <div className="mt-16 pt-8 border-t border-slate-200 dark:border-white/5 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       {[1,2,3].map(i => <div key={i} className="size-1.5 rounded-full bg-[#8686AC]/30" />)}
@@ -177,7 +176,7 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                {/* Animated Background Aura on Hover */}
+               
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-[#505081]/20 dark:to-transparent rounded-[60px] -z-10 blur-3xl opacity-0 group-hover:opacity-100 transition-all duration-1000 scale-95 group-hover:scale-105" />
               </motion.div>
             ))}

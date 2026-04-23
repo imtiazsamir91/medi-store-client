@@ -31,7 +31,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:3001",
+      callbackURL: "https://medi-store-client-seven.vercel.app",
     });
   };
 

@@ -14,7 +14,7 @@ export const Navbar1 = () => {
   const [session, setSession] = useState<any>(null);
   const [scrolled, setScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // মোবাইল মেনু স্টেট
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cart } = useCart();
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -106,7 +106,7 @@ export const Navbar1 = () => {
             </AnimatePresence>
           </Link>
 
-          {/* Profile Dropdown */}
+          {/* Profile Dropdown or Auth Buttons */}
           {session?.user ? (
             <div className="relative">
               <button 
@@ -150,7 +150,13 @@ export const Navbar1 = () => {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
+              <Link 
+                href="/login" 
+                className="hidden sm:block px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#0F0E47] dark:text-white hover:opacity-70 transition-all"
+              >
+                Log In
+              </Link>
               <Button asChild className="rounded-full px-4 md:px-6 h-9 md:h-11 font-black text-[9px] md:text-[10px] uppercase tracking-[0.1em] bg-[#272757] dark:bg-white text-white dark:text-[#0F0E47] hover:bg-[#8686AC] shadow-xl transition-all">
                 <Link href="/register">Join</Link>
               </Button>
@@ -173,7 +179,7 @@ export const Navbar1 = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0F0E47] border border-black/5 dark:border-white/10 rounded-[24px] shadow-2xl overflow-hidden md:hidden p-4 space-y-2 backdrop-blur-xl"
+              className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0F0E47] border border-black/5 dark:border-white/10 rounded-[24px] shadow-2xl overflow-hidden md:hidden p-4 flex flex-col gap-2 backdrop-blur-xl"
             >
               {menu.map((item) => (
                 <Link 
@@ -185,7 +191,29 @@ export const Navbar1 = () => {
                   {item.title}
                 </Link>
               ))}
-              <div className="pt-2 sm:hidden border-t border-black/5 dark:border-white/5">
+              
+              {/* Mobile Auth Links (If not logged in) */}
+              {!session?.user && (
+                <div className="pt-2 border-t border-black/5 dark:border-white/5 grid grid-cols-2 gap-2">
+                   <Link 
+                    href="/login" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-white/60"
+                  >
+                    Log In
+                  </Link>
+                  <Link 
+                    href="/register" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-center px-4 py-3 text-[10px] font-black uppercase tracking-widest bg-[#272757] text-white rounded-xl"
+                  >
+                    Join Now
+                  </Link>
+                </div>
+              )}
+
+              <div className="pt-2 border-t border-black/5 dark:border-white/5 flex justify-between items-center px-4">
+                 <span className="text-[10px] font-black uppercase text-gray-400">Theme</span>
                  <ModeToggle />
               </div>
             </motion.div>
