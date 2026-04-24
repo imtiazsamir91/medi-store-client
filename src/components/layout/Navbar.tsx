@@ -1,12 +1,12 @@
 "use client";
 
-import { ShoppingCart, Sparkles, User, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
+import { ShoppingCart, Sparkles, User, LogOut, LayoutDashboard, Menu, X, LogIn, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
 import { authClient } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useCart } from "@/providers/CartProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,6 +16,8 @@ export const Navbar1 = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cart } = useCart();
+  const profileRef = useRef<HTMLDivElement>(null);
+
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
@@ -34,6 +36,17 @@ export const Navbar1 = () => {
       }
     };
     fetchSession();
+  }, []);
+
+  // বাইরের ক্লিকে মেনু বন্ধ করা
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = async () => {
@@ -59,7 +72,7 @@ export const Navbar1 = () => {
         className={cn(
           "pointer-events-auto flex items-center justify-between px-4 md:px-6 py-3 rounded-[24px] transition-all duration-500 relative",
           scrolled 
-            ? "w-full max-w-[1000px] bg-white/80 dark:bg-[#0F0E47]/80 backdrop-blur-2xl border border-black/5 dark:border-white/10 shadow-2xl" 
+            ? "w-full max-w-[1000px] bg-white/90 dark:bg-[#0F0E47]/90 backdrop-blur-2xl border border-black/5 dark:border-white/10 shadow-2xl" 
             : "w-full max-w-[1200px] bg-transparent border border-transparent"
         )}
       >
@@ -92,7 +105,7 @@ export const Navbar1 = () => {
             <ModeToggle />
           </div>
 
-          <Link href="/cart" className="relative p-2 md:p-2.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all border border-transparent hover:border-black/5 dark:hover:border-white/10">
+          <Link href="/cart" className="relative p-2 md:p-2.5 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all">
             <ShoppingCart className="size-5 text-[#0F0E47] dark:text-white" />
             <AnimatePresence>
               {cartItemCount > 0 && (
@@ -106,80 +119,83 @@ export const Navbar1 = () => {
             </AnimatePresence>
           </Link>
 
-          {/* Profile Dropdown or Auth Buttons */}
-          {session?.user ? (
-            <div className="relative">
-              <button 
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="relative size-9 md:size-10 rounded-full overflow-hidden border-2 border-[#8686AC]/30 hover:border-[#8686AC] transition-all bg-[#272757] flex items-center justify-center shadow-lg"
-              >
-                {session.user.image ? (
-                  <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white font-bold text-xs md:text-sm uppercase">
-                    {session.user.name?.charAt(0)}
-                  </span>
-                )}
-              </button>
+          {/* Combined Profile/Auth Dropdown */}
+          <div className="relative" ref={profileRef}>
+            <button 
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="size-9 md:size-10 rounded-full overflow-hidden border-2 border-[#8686AC]/30 hover:border-[#8686AC] transition-all bg-[#272757] flex items-center justify-center shadow-lg cursor-pointer"
+            >
+              {session?.user?.image ? (
+                <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
+              ) : (
+                <User className="size-5 text-white" />
+              )}
+            </button>
 
-              <AnimatePresence>
-                {showProfileMenu && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-4 w-56 bg-white dark:bg-[#0F0E47] border border-black/5 dark:border-white/10 rounded-[24px] shadow-2xl p-2 backdrop-blur-3xl overflow-hidden"
-                  >
-                    <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2">
-                      <p className="text-[10px] font-black text-[#8686AC] uppercase tracking-widest">Logged in</p>
-                      <p className="text-sm font-bold truncate dark:text-white">{session.user.name}</p>
-                    </div>
-                    <Link href="/profile" className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all" onClick={() => setShowProfileMenu(false)}>
-                      <User className="size-4" /> Profile
-                    </Link>
-                    {userRole && (
-                      <Link href={`/${userRole.toLowerCase()}`} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all" onClick={() => setShowProfileMenu(false)}>
-                        <LayoutDashboard className="size-4" /> Dashboard
+            <AnimatePresence>
+              {showProfileMenu && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                  className="absolute right-0 top-full mt-4 w-56 bg-white dark:bg-[#0F0E47] border border-black/10 dark:border-white/10 rounded-[24px] shadow-2xl p-2 backdrop-blur-3xl z-[150]"
+                >
+                  {session?.user ? (
+                    // লগইন থাকলে এই পার্ট
+                    <>
+                      <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2">
+                        <p className="text-[10px] font-black text-[#8686AC] uppercase tracking-widest">Account</p>
+                        <p className="text-sm font-bold truncate dark:text-white">{session.user.name}</p>
+                      </div>
+                      <Link href="/profile" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all">
+                        <User className="size-4" /> Profile
                       </Link>
-                    )}
-                    <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all">
-                      <LogOut className="size-4" /> Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 md:gap-2">
-              <Link 
-                href="/login" 
-                className="hidden sm:block px-3 py-2 text-[10px] font-black uppercase tracking-widest text-[#0F0E47] dark:text-white hover:opacity-70 transition-all"
-              >
-                Log In
-              </Link>
-              <Button asChild className="rounded-full px-4 md:px-6 h-9 md:h-11 font-black text-[9px] md:text-[10px] uppercase tracking-[0.1em] bg-[#272757] dark:bg-white text-white dark:text-[#0F0E47] hover:bg-[#8686AC] shadow-xl transition-all">
-                <Link href="/register">Join</Link>
-              </Button>
-            </div>
-          )}
+                      {userRole && (
+                        <Link href={`/${userRole.toLowerCase()}`} onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all">
+                          <LayoutDashboard className="size-4" /> Dashboard
+                        </Link>
+                      )}
+                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all cursor-pointer">
+                        <LogOut className="size-4" /> Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    // লগইন না থাকলে এই পার্ট
+                    <>
+                      <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2">
+                        <p className="text-[10px] font-black text-[#8686AC] uppercase tracking-widest">Welcome</p>
+                        <p className="text-sm font-bold dark:text-white">Guest User</p>
+                      </div>
+                      <Link href="/login" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-600 dark:text-white/70 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all">
+                        <LogIn className="size-4" /> Log In
+                      </Link>
+                      <Link href="/register" onClick={() => setShowProfileMenu(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-[#272757] dark:text-[#8686AC] hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all">
+                        <UserPlus className="size-4" /> Join Now
+                      </Link>
+                    </>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 text-[#0F0E47] dark:text-white"
+            className="md:hidden p-2 text-[#0F0E47] dark:text-white cursor-pointer"
           >
             {isMobileMenuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
         </div>
 
-        {/* Mobile Menu Content */}
+        {/* Mobile Sidebar */}
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0F0E47] border border-black/5 dark:border-white/10 rounded-[24px] shadow-2xl overflow-hidden md:hidden p-4 flex flex-col gap-2 backdrop-blur-xl"
+              className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#0F0E47] border border-black/5 dark:border-white/10 rounded-[24px] shadow-2xl overflow-hidden md:hidden p-4 flex flex-col gap-2 backdrop-blur-xl z-[140]"
             >
               {menu.map((item) => (
                 <Link 
@@ -191,30 +207,9 @@ export const Navbar1 = () => {
                   {item.title}
                 </Link>
               ))}
-              
-              {/* Mobile Auth Links (If not logged in) */}
-              {!session?.user && (
-                <div className="pt-2 border-t border-black/5 dark:border-white/5 grid grid-cols-2 gap-2">
-                   <Link 
-                    href="/login" 
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 dark:text-white/60"
-                  >
-                    Log In
-                  </Link>
-                  <Link 
-                    href="/register" 
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-center px-4 py-3 text-[10px] font-black uppercase tracking-widest bg-[#272757] text-white rounded-xl"
-                  >
-                    Join Now
-                  </Link>
-                </div>
-              )}
-
               <div className="pt-2 border-t border-black/5 dark:border-white/5 flex justify-between items-center px-4">
-                 <span className="text-[10px] font-black uppercase text-gray-400">Theme</span>
-                 <ModeToggle />
+                <span className="text-[10px] font-black uppercase text-gray-400">Theme</span>
+                <ModeToggle />
               </div>
             </motion.div>
           )}
