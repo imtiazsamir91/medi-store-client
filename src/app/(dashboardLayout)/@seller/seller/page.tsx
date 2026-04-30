@@ -1,7 +1,7 @@
 
 import SellerStats from "@/components/layout/SellerStats";
 import { getSellerOrders } from "@/services/medicine.service";
-
+export const dynamic = "force-dynamic";
 export default async function SellerOrdersPage() {
   const res = await getSellerOrders();
   const orders = res.data || [];

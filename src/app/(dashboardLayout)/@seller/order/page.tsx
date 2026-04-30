@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ShoppingBag, User, DollarSign, Activity } from "lucide-react";
 import OrderDetailsModal from "@/components/layout/OrderDetailsModal";
-
+export const dynamic = "force-dynamic";
 export default function SellerOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

@@ -5,6 +5,9 @@ import { ApiResponse, Product } from "@/types";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 
+
+//export const dynamic = 'force-dynamic';
+
 const API_URL = env.NEXT_PUBLIC_API_URL!;
 
 // --- MEDICINE RELATED ACTIONS ---
@@ -33,7 +36,7 @@ export async function getProductById(id: string): Promise<ApiResponse<Product>> 
   }
 }
 
-// ৩. সেলারের নিজস্ব মেডিসিন লিস্ট দেখা
+// 
 export async function getSellerMedicines(): Promise<ApiResponse<Product[]>> {
   try {
     const cookieStore = await cookies();
@@ -55,7 +58,7 @@ export async function getSellerMedicines(): Promise<ApiResponse<Product[]>> {
 
 // -
 
-// ৪. নতুন অর্ডার তৈরি করা
+// 
 export async function createOrder(orderPayload: any) {
   try {
     const cookieStore = await cookies();
@@ -129,7 +132,7 @@ export async function updateMedicine(id: string, data: any) {
 
 
 
-// ৫. কাস্টমারের নিজের অর্ডার দেখা
+// 
 export async function getMyOrders() {
   try {
     const cookieStore = await cookies();
@@ -148,7 +151,7 @@ export async function getMyOrders() {
   }
 }
 
-// ৬. সেলারের জন্য অর্ডার দেখা 
+// 
 export async function getSellerOrders() {
   try {
     const cookieStore = await cookies();
@@ -169,7 +172,7 @@ export async function getSellerOrders() {
 
 
 
-// ৭. অ্যাডমিন সব অর্ডার দেখবে (ফিল্টার সহ)
+//
 export async function getAllAdminOrders(status?: string) {
   try {
     const cookieStore = await cookies();
@@ -192,7 +195,7 @@ export async function getAllAdminOrders(status?: string) {
   }
 }
 
-// ৮. অর্ডার স্ট্যাটাস আপডেট করা (Admin/Seller)
+//
 export async function updateOrderStatus(orderId: string, newStatus: string) {
   try {
     const cookieStore = await cookies();
@@ -293,7 +296,7 @@ export const getAdminStats = async (): Promise<AdminStats | null> => {
   }
 };
 
-// ১০. ইউজার ম্যানেজমেন্ট (রোল আপডেট)
+// 
 export async function updateUserRole(userId: string, newRole: string) {
   try {
     const cookieStore = await cookies();
@@ -358,7 +361,7 @@ export async function getAllCategories() {
   }
 }
 
-// নতুন ক্যাটাগরি তৈরি (Admin Only)
+//
 export async function createCategory(data: { name: string }) {
   try {
     const cookieStore = await cookies();
@@ -395,7 +398,7 @@ export async function deleteCategory(id: string) {
   }
 }
 
-// ক্যাটাগরি আপডেট
+// 
 export async function updateCategory(id: string, data: { name: string }) {
   try {
     const cookieStore = await cookies();
@@ -439,7 +442,7 @@ export async function updateCategory(id: string, data: { name: string }) {
 //   }
 // }
 
-// ২. নতুন রিভিউ তৈরি করা
+// 
 export async function createReview(medicineId: string, payload: { userId: string; rating: number; comment: string }) {
   try {
     const cookieStore = await cookies();

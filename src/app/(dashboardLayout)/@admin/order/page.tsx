@@ -1,7 +1,7 @@
 import { getAllAdminOrders } from "@/services/medicine.service";
 import OrderActionSelect from "@/components/layout/OrderActionSelect";
 import Link from "next/link";
-
+export const dynamic = "force-dynamic";
 export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const { status = 'ALL' } = await searchParams;
   const response = await getAllAdminOrders(status);

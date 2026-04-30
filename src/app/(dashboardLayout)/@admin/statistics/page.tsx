@@ -2,7 +2,7 @@ import React from 'react';
 import { getAdminStats } from '@/services/medicine.service';
 import AdminStatsClient from '@/components/layout/AdminStats';
 //import AdminStatsClient from './AdminStatsClient'; 
-
+export const dynamic = "force-dynamic";
 export default async function AdminDashboardStatistics() {
   const statsData = await getAdminStats();
 

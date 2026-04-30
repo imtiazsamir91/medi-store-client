@@ -5,7 +5,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { env } from "@/env";
 import { PackagePlus, ImageIcon, DollarSign, Layers, ClipboardList, Info, Sparkles, ChevronDown } from "lucide-react";
-
+export const dynamic = "force-dynamic";
 const API_URL = env.API_URL;
 type Category = { id: string; name: string };
 

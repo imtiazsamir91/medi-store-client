@@ -1,7 +1,7 @@
 import UserActionDropdown from "@/components/layout/UserActionDropdown";
 import { getAllUsers } from "@/services/medicine.service";
 import React from "react";
-
+export const dynamic = "force-dynamic";
 export default async function ManageUsersPage() {
   const response = await getAllUsers();
   const users = response?.data || [];

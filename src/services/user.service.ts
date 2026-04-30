@@ -1,3 +1,5 @@
+
+
 import { env } from "@/env";
 import { cookies } from "next/headers";
 
@@ -6,6 +8,7 @@ const AUTH_URL = env.AUTH_URL;
 
 export const userService = {
   getSession: async function () {
+    
     try {
       const cookieStore = await cookies(); 
       const cookieHeader = cookieStore.getAll()
@@ -24,11 +27,12 @@ export const userService = {
       if (!session) {
         return { data: null, error: { message: "No session found" } };
       }
-
+console.log("Session Data in Service:", session);
       return { data: session, error: null };
     } catch (err: any) {
       console.error("Error fetching session:", err);
       return { data: null, error: { message: "Something went wrong" } };
     }
   },
+  
 };

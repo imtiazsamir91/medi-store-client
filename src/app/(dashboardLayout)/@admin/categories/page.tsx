@@ -1,7 +1,7 @@
 import AddCategoryModal from "@/components/layout/AddCategoryModal";
 import CategoryList from "@/components/layout/CategoryList";
 import { getAllCategories } from "@/services/medicine.service";
-
+export const dynamic = "force-dynamic";
 export default async function CategoriesPage() {
   const response = await getAllCategories();
   const categories = response?.data || [];

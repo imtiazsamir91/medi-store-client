@@ -1,26 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation"; // ✅ ১. এটি ইম্পোর্ট করুন
 
 const formSchema = z.object({
   password: z.string().min(8, "Minimum length is 8"),
@@ -28,10 +17,12 @@ const formSchema = z.object({
 });
 
 export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const router = useRouter(); 
+
   const handleGoogleLogin = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "https://medi-store-client-seven.vercel.app",
+      callbackURL: `${window.location.origin}/admin`, 
     });
   };
 
@@ -46,7 +37,14 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
           toast.error(error.message, { id: toastId });
           return;
         }
+
         toast.success("Welcome back!", { id: toastId });
+
+        
+        router.push("/");
+
+        router.refresh(); 
+
       } catch (err) {
         toast.error("Something went wrong.", { id: toastId });
       }
@@ -60,7 +58,6 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       transition={{ duration: 0.6 }}
       className="relative p-[1.5px] rounded-[32px] overflow-hidden group" 
     >
-      
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-400 to-purple-600 opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
 
       <Card 
@@ -92,14 +89,13 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
                   const isInvalid = field.state.meta.isTouched && field.state.meta.errors.length > 0;
                   return (
                     <Field className="space-y-2 relative group/field">
-                       
                        <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-400 to-purple-600 rounded-b-2xl opacity-0 group-focus-within/field:opacity-100 transition-opacity duration-300 z-30" />
-                       
                       <FieldLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">
                         Email Address
                       </FieldLabel>
                       <Input
                         type="email"
+                        autoComplete="email"
                         className="h-12 bg-white/5 dark:bg-white/[0.03] border-white/10 rounded-2xl focus:ring-0 focus-visible:ring-0 transition-all placeholder:text-zinc-600 relative z-20"
                         placeholder="name@example.com"
                         value={field.state.value}
@@ -116,14 +112,13 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
                   const isInvalid = field.state.meta.isTouched && field.state.meta.errors.length > 0;
                   return (
                     <Field className="space-y-2 relative group/field">
-                    
                       <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-blue-600 via-indigo-400 to-purple-600 rounded-b-2xl opacity-0 group-focus-within/field:opacity-100 transition-opacity duration-300 z-30" />
-
                       <FieldLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 ml-1">
                         Password
                       </FieldLabel>
                       <Input
                         type="password"
+                        autoComplete="current-password"
                         className="h-12 bg-white/5 dark:bg-white/[0.03] border-white/10 rounded-2xl focus:ring-0 focus-visible:ring-0 transition-all placeholder:text-zinc-600 relative z-20"
                         placeholder="••••••••"
                         value={field.state.value}
@@ -139,7 +134,6 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-4 pb-10 relative z-20">
-        
           <Button 
             form="login-form" 
             type="submit" 

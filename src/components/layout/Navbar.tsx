@@ -2,43 +2,35 @@
 
 import { ShoppingCart, Sparkles, User, LogOut, LayoutDashboard, Menu, X, LogIn, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { ModeToggle } from "./ModeToggle";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client"; // নিশ্চিত করুন এখানে useSession আছে
 import { useEffect, useState, useRef } from "react";
 import { useCart } from "@/providers/CartProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const Navbar1 = () => {
-  const [session, setSession] = useState<any>(null);
+ 
+  const { data: session, isPending } = authClient.useSession();
+  
   const [scrolled, setScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cart } = useCart();
   const profileRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const cartItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
+  
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const { data } = await authClient.getSession();
-        setSession(data);
-      } catch (err) {
-        setSession(null);
-      }
-    };
-    fetchSession();
-  }, []);
-
-  // বাইরের ক্লিকে মেনু বন্ধ করা
+ 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -50,8 +42,14 @@ export const Navbar1 = () => {
   }, []);
 
   const handleLogout = async () => {
-    await authClient.signOut();
-    window.location.reload();
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/login");
+          router.refresh(); 
+        },
+      },
+    });
   };
 
   const menu = [
@@ -60,7 +58,8 @@ export const Navbar1 = () => {
     { title: "About", url: "/about" },
   ];
 
-  const userRole = session?.user?.role?.toUpperCase();
+  
+  const userRole = (session?.user as { role?: string } | undefined)?.role?.toUpperCase();
   if (userRole === "ADMIN") menu.push({ title: "Admin", url: "/admin" });
   if (userRole === "SELLER") menu.push({ title: "Seller", url: "/seller" });
 
@@ -125,7 +124,9 @@ export const Navbar1 = () => {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="size-9 md:size-10 rounded-full overflow-hidden border-2 border-[#8686AC]/30 hover:border-[#8686AC] transition-all bg-[#272757] flex items-center justify-center shadow-lg cursor-pointer"
             >
-              {session?.user?.image ? (
+              {isPending ? (
+                <div className="w-full h-full animate-pulse bg-gray-400" />
+              ) : session?.user?.image ? (
                 <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
               ) : (
                 <User className="size-5 text-white" />
@@ -140,8 +141,7 @@ export const Navbar1 = () => {
                   exit={{ opacity: 0, y: 15, scale: 0.95 }}
                   className="absolute right-0 top-full mt-4 w-56 bg-white dark:bg-[#0F0E47] border border-black/10 dark:border-white/10 rounded-[24px] shadow-2xl p-2 backdrop-blur-3xl z-[150]"
                 >
-                  {session?.user ? (
-                    // লগইন থাকলে এই পার্ট
+                  {!isPending && session?.user ? (
                     <>
                       <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2">
                         <p className="text-[10px] font-black text-[#8686AC] uppercase tracking-widest">Account</p>
@@ -160,7 +160,6 @@ export const Navbar1 = () => {
                       </button>
                     </>
                   ) : (
-                    // লগইন না থাকলে এই পার্ট
                     <>
                       <div className="px-4 py-3 border-b border-black/5 dark:border-white/5 mb-2">
                         <p className="text-[10px] font-black text-[#8686AC] uppercase tracking-widest">Welcome</p>
@@ -179,7 +178,6 @@ export const Navbar1 = () => {
             </AnimatePresence>
           </div>
 
-          {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-[#0F0E47] dark:text-white cursor-pointer"
@@ -207,10 +205,6 @@ export const Navbar1 = () => {
                   {item.title}
                 </Link>
               ))}
-              <div className="pt-2 border-t border-black/5 dark:border-white/5 flex justify-between items-center px-4">
-                <span className="text-[10px] font-black uppercase text-gray-400">Theme</span>
-                <ModeToggle />
-              </div>
             </motion.div>
           )}
         </AnimatePresence>

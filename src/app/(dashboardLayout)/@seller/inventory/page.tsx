@@ -1,6 +1,6 @@
 import MyMedicines from "@/components/modules/medicine/addMedicine/editMedicine";
 import { motion } from "framer-motion"; // যদি ফাউমার মোশন ব্যবহার করেন
-
+export const dynamic = "force-dynamic";
 export default function MyMedicinesPage() {
   return (
     // লাইট ও ডার্ক মোড সাপোর্ট এবং রেসপন্সিভ প্যাডিং

@@ -1,8 +1,8 @@
 "use client";
 
+import { updateOrderStatus } from "@/services/medicine.service";
 import { useState } from "react";
 import { toast } from "sonner";
-import { updateOrderStatus } from "@/services/medicine.service";
 
 export default function OrderStatusDropdown({ orderId, initialStatus }: { orderId: string, initialStatus: string }) {
   const [status, setStatus] = useState(initialStatus);

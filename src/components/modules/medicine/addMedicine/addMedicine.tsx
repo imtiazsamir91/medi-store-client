@@ -1,8 +1,10 @@
 "use server";
-
 import { cookies } from "next/headers";
 import { env } from "@/env";
 import { revalidatePath } from "next/cache";
+
+
+//export const dynamic = 'force-dynamic';
 
 const API_URL = env.API_URL;
 
